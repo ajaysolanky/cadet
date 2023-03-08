@@ -1,5 +1,6 @@
-from langchain.document_loaders import PagedPDFSplitter
+# from langchain.document_loaders import PagedPDFSplitter
 import json
+import fitz
 
 from JDWriter import JDWriter
 from ResumeScreener import ResumeScreener
@@ -76,11 +77,15 @@ def eval_candidate():
         'Yamini Bhandari': './yb_resume.pdf'
     }
     pdf_path = pdf_dict[data['name']]
-    loader = PagedPDFSplitter(pdf_path)
-    pages = loader.load_and_split()
-    resume_text = pages[0].page_content # missing the other pages
+    doc = fitz.open(pdf_path)
+    resume_text = ""
+    for page in doc:
+        resume_text += page.get_text()
+    # loader = PagedPDFSplitter(pdf_path)
+    # pages = loader.load_and_split()
+    # resume_text = pages[0].page_content # missing the other pages
     resume_screener = ResumeScreener()
-    analysis = resume_screener.get_analysis(resume_text, data['quals'].split(','))
+    analysis = resume_screener.get_analysis(resume_text, data['quals'].split(','), resume_doc=doc)
     bullets = [s.strip() for s in analysis.split('*') if s.strip()]
     analysis_formatted = ''.join(['*'+b for b in bullets])
 
