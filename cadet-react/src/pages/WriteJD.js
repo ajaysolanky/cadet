@@ -18,8 +18,8 @@ const WriteJD = () => {
   const [companyDescription, setCompanyDescription] = useState(cd)
   const [teamName, setTeamName] = useState(tn);
   const [teamDescription, setTeamDescription] = useState(td);
-  const [necessarySkills, setNecessarySkills] = useState("software engineering,SQL,Ivy League Education");
-  const [preferredSkills, setPreferredSkills] = useState("Neuroscience");
+  const [necessarySkills, setNecessarySkills] = useState("software engineering,data science,product management,SQL");
+  const [preferredSkills, setPreferredSkills] = useState("Ivy League Education");
 
   const [amendmentText, setAmendmentText] = useState("");
 

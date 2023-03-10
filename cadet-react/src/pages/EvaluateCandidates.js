@@ -1,34 +1,83 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Collapsible from 'react-collapsible';
 import { useSelector, useDispatch } from 'react-redux';
 import React from 'react';
 import { render } from 'react-dom';
+import {
+    PdfLoader,
+    PdfHighlighter,
+    Tip,
+    Highlight,
+    Popup,
+    AreaHighlight,
+  } from "react-pdf-highlighter";
+
+import { element } from "prop-types";
 
 const EvaluateCandidates = () => {
     const quals = useSelector((state) => state.job.quals);
 
+    const [pdfUrl, setPdfUrl] = useState();
+
+    const [analysisData, setAnalysisData] = useState()
+
+    useEffect(() => {
+        if (analysisData) {
+            var newTableData = []
+            analysisData.forEach((val, idx) => {
+                newTableData.push({
+                    "evaledQuals": val["overview_analysis"],
+                    "highlights": val["highlights"],
+                    ...tableData[idx]
+                })
+            })
+            setTableData(newTableData)
+        }
+    }, [analysisData])
+
     const [tableData, setTableData] = useState([
-        {"name": "Ajay Solanky", "email": "ajsolanky@gmail.com", "resume": <a href="/resources/ajay_resume.pdf">Ajay's Resume</a>},
-        {"name": "Aalhad Patankar", "email": "aalhad.patankar@gmail.com", "resume": <a href="/resources/aal_resume.pdf">Aal's Resume</a>},
-        {"name": "Yamini Bhandari", "email": "yamini.bhandari@gmail.com", "resume": <a href="/resources/yb_resume.pdf">Yamini's Resume</a>}
+        {"name": "Ajay Solanky", "email": "ajsolanky@gmail.com", "resume": "https://cadet-resumes.s3.amazonaws.com/ajay_resume.pdf"},
+        {"name": "Aalhad Patankar", "email": "aalhad.patankar@gmail.com", "resume": "https://cadet-resumes.s3.amazonaws.com/aal_resume.pdf"},
+        {"name": "Yamini Bhandari", "email": "yamini.bhandari@gmail.com", "resume": "https://cadet-resumes.s3.amazonaws.com/yb_resume.pdf"}
     ])
-    const handleButtonClick = () => {
-        const newTableDataPromises = [];
+
+    const handleResumeShowButtonClick = (idx) => {
+        const candidate = tableData[idx]
+        setSelectedCandidate(candidate.name);
+        setPdfUrl(candidate.resume);
+    }
+
+    const handleResumeReviewButtonClick = () => {
+        const analysisPromises = [];
         tableData.forEach(element => {
             var url = `http://192.168.1.240:105/evalcandidate?name=${encodeURIComponent(element.name)}&quals=${encodeURIComponent(quals)}`
-            newTableDataPromises.push(
+            analysisPromises.push(
                 fetch(url, {
                     "method": "GET",
                     headers: {'Content-Type': 'application/json'}
                 })
                     .then(response => response.json())
-                    .then(data => ({"evaledQuals": data["response"], ...element}))
+                    .then(data => data["response"])
+                    // .then(data => ({"evaledQuals": data["response"], ...element}))
             )
         })
-        Promise.all(newTableDataPromises).then(newTableData => setTableData(newTableData))
+        Promise.all(analysisPromises).then(analysisData => setAnalysisData(analysisData))
     }
+
+    // const highlights = testHighlights["https://arxiv.org/pdf/1708.08021.pdf"];
+
+    // console.log(highlights)
+
+    const [selectedCandidate, setSelectedCandidate] = useState()
+    const [selectedSkill, setSelectedSkill] = useState()
+    const skillHighlights = tableData.find(candidate => candidate.name == selectedCandidate)?.highlights?.[selectedSkill]
+
+    console.log('printing')
     console.log(tableData)
+    console.log(selectedSkill)
+    console.log(tableData.find(candidate => candidate.name == selectedCandidate)?.highlights)
+    console.log(skillHighlights)
     return (
       <>
         <h1>Candidate Applications</h1>
@@ -37,12 +86,9 @@ const EvaluateCandidates = () => {
             <p>whatever</p>
         </Collapsible> */}
         <ul>
-            {quals.split(",").map((el) => {
-                return (
-                    <li>{el}</li>
-                )
-            })}
+            {quals.split(",").map((el, idx) => (<li key={idx}>{el}</li>))}
         </ul><br />
+        <button onClick={handleResumeReviewButtonClick}>Review Resumes</button><br /><br />
         <table>
             <thead>
                 <tr>
@@ -55,14 +101,14 @@ const EvaluateCandidates = () => {
                 </tr>
             </thead>
             <tbody>
-                {tableData.map((val, key) => {
+                {tableData.map((val, idx) => {
                     return (
-                        <tr key={key}>
+                        <tr key={idx}>
                             <td><input type="radio" name={val.name} /></td>
-                            <td>{key+1}.</td>
+                            <td>{idx+1}.</td>
                             <td>{val.name}</td>
                             <td>{val.email}</td>
-                            <td>{val.resume}</td>
+                            <td><button onClick={()=>{handleResumeShowButtonClick(idx)}}>show</button></td>
                             {/* <td>{val.evaledQuals}</td> */}
                             <td><ul>{(val.evaledQuals || '').split("*").slice(1).map((el) => {
                                 return (<li>{el}</li>)
@@ -72,76 +118,92 @@ const EvaluateCandidates = () => {
                 })}
             </tbody>
         </table><br />
-        <button onClick={handleButtonClick}>Review Resumes</button><br /><br />
+        <br /><br /><br />
         <Link to="/requestinterview"><button>Request Interview</button></Link>
+        <br /><br />
+        {pdfUrl && quals.split(",").map((el, idx) => (<button onClick={() => setSelectedSkill(el)} key={idx}>{el}</button>))}
+        <PdfLoader url={pdfUrl}>
+            {(pdfDocument) => (
+                <PdfHighlighter
+                    pdfDocument={pdfDocument}
+                    enableAreaSelection={(event) => event.altKey}
+                    onScrollChange={resetHash}
+                    scrollRef={(scrollTo) => {
+                        this.scrollViewerTo = scrollTo;
+                        this.scrollToHighlightFromHash();
+                    }}
+                    onSelectionFinished={(
+                        position,
+                        content,
+                        hideTipAndSelection,
+                        transformSelection
+                        ) => (
+                        <Tip
+                            onOpen={transformSelection}
+                            onConfirm={(comment) => {
+                            this.addHighlight({ content, position, comment });
+        
+                            hideTipAndSelection();
+                            }}
+                        />
+                        )}
+                    highlightTransform={(
+                    highlight,
+                    index,
+                    setTip,
+                    hideTip,
+                    viewportToScaled,
+                    screenshot,
+                    isScrolledTo
+                    ) => {
+                    const isTextHighlight = !Boolean(
+                        highlight.content && highlight.content.image
+                    );
+    
+                    const component = isTextHighlight ? (
+                        <Highlight
+                        isScrolledTo={isScrolledTo}
+                        position={highlight.position}
+                        comment={highlight.comment}
+                        />
+                    ) : (
+                        <AreaHighlight
+                        isScrolledTo={isScrolledTo}
+                        highlight={highlight}
+                        onChange={(boundingRect) => {
+                            this.updateHighlight(
+                            highlight.id,
+                            { boundingRect: viewportToScaled(boundingRect) },
+                            { image: screenshot(boundingRect) }
+                            );
+                        }}
+                        />
+                    );
+                    return (
+                        <Popup
+                        popupContent={<HighlightPopup {...highlight} />}
+                        onMouseOver={(popupContent) =>
+                            setTip(highlight, (highlight) => popupContent)
+                        }
+                        onMouseOut={hideTip}
+                        key={index}
+                        children={component}
+                        />
+                    );
+                    }}
+                    highlights={skillHighlights}
+                />
+            )}
+        </PdfLoader>
       </>);
   };
-  
-  class UserTableRow extends React.Component {
-    state = { expanded: false }
-  
-    toggleExpander = (e) => {
-      if (e.target.type === 'checkbox') return;
-  
-      if (!this.state.expanded) {
-        this.setState(
-          { expanded: true },
-          () => {
-            if (this.refs.expanderBody) {
-                console.log()
-            //   slideDown(this.refs.expanderBody);
-            }
-          }
-        );
-      } else {
-        console.log()
-        // slideUp(this.refs.expanderBody, {
-        //   onComplete: () => { this.setState({ expanded: false }); }
-        // });
-      }
-    }
-  
-    render() {
-      const { user } = this.props;
-      return [
-        <tr key="main" onClick={this.toggleExpander}>
-          <td><input className="uk-checkbox" type="checkbox" /></td>
-          <td className="uk-text-nowrap">{this.props.index}.</td>
-          <td><img className="uk-preserve-width uk-border-circle" src={user.picture.thumbnail} width={48} alt="avatar" /></td>
-          <td>{capitalize(user.name.first + ' ' + user.name.last)}<br /><small>{user.email}</small></td>
-          <td>{capitalize(user.location.city)} ({user.nat})</td>
-          <td>{formatDate(user.registered)}</td>
-        </tr>,
-        this.state.expanded && (
-          <tr className="expandable" key="tr-expander">
-            <td className="uk-background-muted" colSpan={6}>
-              <div ref="expanderBody" className="inner uk-grid">
-                <div className="uk-width-1-4 uk-text-center">
-                  <img className="uk-preserve-width uk-border-circle" src={user.picture.large} alt="avatar" />
-                </div>
-                <div className="uk-width-3-4">
-                  <h3>{capitalize(user.name.first + ' ' + user.name.last)}</h3>
-                  <p>
-                    Address:<br/>
-                    <i>
-                      {capitalize(user.location.street)}<br/>
-                      {user.location.postcode} {capitalize(user.location.city)}<br/>
-                      {user.nat}
-                    </i>
-                  </p>
-                  <p>
-                    E-mail: {user.email}<br/>
-                    Phone: {user.phone}
-                  </p>
-                  <p>Date of birth: {formatDate(user.dob)}</p>
-                </div>
-              </div>
-            </td>
-          </tr>
-        )
-      ];
-    }
-  }
+
+  const parseIdFromHash = () =>
+    document.location.hash.slice("#highlight-".length);
+
+  const resetHash = () => {
+    document.location.hash = "";
+  };
 
   function formatDate(str) {
     return str.substr(0, 10);
@@ -153,5 +215,16 @@ const EvaluateCandidates = () => {
     }).join(' ');
   }
 
+  const getNextId = () => String(Math.random()).slice(2);
+
+  const HighlightPopup = ({
+    comment,
+  }) =>
+    comment.text ? (
+      <div className="Highlight__popup">
+        {comment.emoji} {comment.text}
+      </div>
+    ) : null;
+  
   export default EvaluateCandidates;
   

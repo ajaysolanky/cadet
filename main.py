@@ -7,6 +7,7 @@ from ResumeScreener import ResumeScreener
 from OutreachEmailer import OutreachEmailer
 from ResponseEmailer import ResponseEmailer
 from OpenAIQuery import OpenAIQuery
+from utils import GhettoDiskCache
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
@@ -71,29 +72,35 @@ def eval_candidate():
         [data[k] for k in keys]
     except:
         raise Exception('key not found')
+    
+    if not data['quals']:
+        raise Exception('Quals missing')
+    
+    gdc = GhettoDiskCache()
+    gdc_args = (data['name'], data['quals'])
+    cached_val = gdc.check_cache(*gdc_args)
+    if cached_val:
+        return cached_val
+
     pdf_dict = {
         'Ajay Solanky': './ajay_resume.pdf',
         'Aalhad Patankar': './aal_resume.pdf',
         'Yamini Bhandari': './yb_resume.pdf'
     }
     pdf_path = pdf_dict[data['name']]
-    doc = fitz.open(pdf_path)
-    resume_text = ""
-    for page in doc:
-        resume_text += page.get_text()
-    # loader = PagedPDFSplitter(pdf_path)
-    # pages = loader.load_and_split()
-    # resume_text = pages[0].page_content # missing the other pages
+    resume_doc = fitz.open(pdf_path)
     resume_screener = ResumeScreener()
-    analysis = resume_screener.get_analysis(resume_text, data['quals'].split(','), resume_doc=doc)
-    bullets = [s.strip() for s in analysis.split('*') if s.strip()]
-    analysis_formatted = ''.join(['*'+b for b in bullets])
+    qualifications = data['quals'].split(',')
+    overview_analysis = resume_screener.get_analysis(resume_doc, tuple(qualifications), print_prompt=True)
+    oa_bullets = [s.strip() for s in overview_analysis.split('*') if s.strip()]
+    oa_formatted = ''.join(['*'+b for b in oa_bullets])
+    print(oa_formatted)
 
-    print(analysis_formatted)
+    highlight_analysis = resume_screener.get_highglight_data(resume_doc, tuple(qualifications))
 
-    # analysis_formatted="*Software Engineering: None mentioned*Ivy League Education: Yes, the candidate has a Masters in Business Administration from Harvard Business School and a Bachelor of Science from Cornell University.*HR: Yes, the candidate has experience in HR, having created and executed all core HR functions, including recruiting, onboarding, benefits enrollment, and employee relations from scratch at US Bitcoin Corporation."
-
-    response = jsonify({"response": analysis_formatted})
+    response_dict = {"response": {"overview_analysis": oa_formatted, "highlights": highlight_analysis}}
+    gdc.save_to_cache(response_dict, *gdc_args)
+    response = jsonify(response_dict)
     response.headers.add('Access-Control-Allow-Origin', '*')
     print(response)
     return response
