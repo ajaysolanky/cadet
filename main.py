@@ -90,13 +90,19 @@ def eval_candidate():
     resume_screener = ResumeScreener()
     qualifications = data['quals'].split(',')
     overview_analysis = resume_screener.get_analysis(resume_doc, tuple(qualifications), print_prompt=True)
-    oa_bullets = [s.strip() for s in overview_analysis.split('*') if s.strip()]
-    oa_formatted = ''.join(['*'+b for b in oa_bullets])
-    print(oa_formatted)
+    oa_segments = [s.strip() for s in overview_analysis.split('*') if s.strip()]
+    oa_dict = {}
+    for seg in oa_segments:
+        i = seg.index(':')
+        skill = seg[:i].strip()
+        desc = seg[i+1:].strip()
+        oa_dict[skill.lower()] = desc
+    # oa_formatted = ''.join(['*'+b for b in oa_bullets])
+    print(oa_dict)
 
     highlight_analysis = resume_screener.get_highglight_data(resume_doc, tuple(qualifications))
 
-    response_dict = {"response": {"overview_analysis": oa_formatted, "highlights": highlight_analysis}}
+    response_dict = {"response": {"overview_analysis": oa_dict, "highlights": highlight_analysis}}
     gdc.save_to_cache(response_dict, *gdc_args)
     response = jsonify(response_dict)
     response.headers.add('Access-Control-Allow-Origin', '*')
