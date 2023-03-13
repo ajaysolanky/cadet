@@ -1,5 +1,6 @@
 import json
 import os
+import errno
 
 from langchain.text_splitter import NLTKTextSplitter, RecursiveCharacterTextSplitter
 
@@ -31,6 +32,14 @@ class GhettoDiskCache:
         key = self.get_key(*args)
         cache = self.get_cache(key)
         cache[key] = value
+        cache_path = self.get_cache_path(key)
+        try:
+            os.makedirs(os.path.dirname(cache_path))
+        except OSError as exc:
+            if exc.errno == errno.EEXIST and os.path.isdir(cache_path):
+                pass
+            else:
+                raise
         with open(self.get_cache_path(key), 'w+') as f:
             json.dump(cache, f)
 

@@ -198,24 +198,9 @@ const EvaluateCandidates = () => {
       </>);
   };
 
-  const parseIdFromHash = () =>
-    document.location.hash.slice("#highlight-".length);
-
   const resetHash = () => {
     document.location.hash = "";
   };
-
-  function formatDate(str) {
-    return str.substr(0, 10);
-  }
-  
-  function capitalize(str) {
-    return str.split(' ').map(s => {
-      return s.charAt(0).toUpperCase() + s.substr(1);
-    }).join(' ');
-  }
-
-  const getNextId = () => String(Math.random()).slice(2);
 
   const HighlightPopup = ({
     comment,
