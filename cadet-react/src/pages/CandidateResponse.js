@@ -24,7 +24,7 @@ const CandidateResponse = () => {
         headers: {'Content-Type': 'application/json'},
       }
     const type = 'candidate_response'
-    var url = `http://192.168.1.240:105/amendment?textBody=${encodeURIComponent(emailBody)}&type=${type}&instructions=${amendmentText}`
+    var url = `http://127.0.0.1:105/amendment?textBody=${encodeURIComponent(emailBody)}&type=${type}&instructions=${amendmentText}`
     fetch(url, requestOptions)
       .then(response => response.json())
       .then(data => setEmailBody(data['response']))

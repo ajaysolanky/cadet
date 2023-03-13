@@ -51,7 +51,7 @@ const EvaluateCandidates = () => {
     const handleResumeReviewButtonClick = () => {
         const analysisPromises = [];
         tableData.forEach(element => {
-            var url = `http://192.168.1.240:105/evalcandidate?name=${encodeURIComponent(element.name)}&quals=${encodeURIComponent(quals)}`
+            var url = `http://127.0.0.1:105/evalcandidate?name=${encodeURIComponent(element.name)}&quals=${encodeURIComponent(quals)}`
             analysisPromises.push(
                 fetch(url, {
                     "method": "GET",

@@ -41,7 +41,7 @@ const RequestInterview = () => {
       // body: data
       // body: JSON.stringify({'company_name': 'Chunky Funky Monkey', 'necessary_skills': ['software engineering','python','agile development','large-scale distributed systems'], 'preferred_skills': ['SQL','data analysis'], 'job_title': 'Principal Data Scientist', 'team_name': 'Customer Success', 'team_description': 'The Customer Success Team takes a data-driven approach to ensuring our customers have a seamless end-to-end customer journey from onboarding to purchase', 'company_description': 'Chunky Funky Monkey is an online d2c brand, serving delicious chunky cookies to customers around the world'})
     }
-    var url = 'http://192.168.1.240:105/outreachemail?'
+    var url = 'http://127.0.0.1:105/outreachemail?'
     for (const [key, value] of Object.entries(payload)) {
       url += `${key}=${encodeURIComponent(value)}&`;
     }
