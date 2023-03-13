@@ -35,11 +35,8 @@ class GhettoDiskCache:
         cache_path = self.get_cache_path(key)
         try:
             os.makedirs(os.path.dirname(cache_path))
-        except OSError as exc:
-            if exc.errno == errno.EEXIST and os.path.isdir(cache_path):
-                pass
-            else:
-                raise
+        except:
+            pass
         with open(self.get_cache_path(key), 'w+') as f:
             json.dump(cache, f)
 
