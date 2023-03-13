@@ -10,10 +10,13 @@ from OpenAIQuery import OpenAIQuery
 from utils import GhettoDiskCache
 
 from flask import Flask, jsonify, request
+from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/getjd', methods=['GET'])
+@cross_origin()
 def get_jd():
     data = request.args
     jd_desc_keys = [
@@ -58,7 +61,7 @@ def get_jd():
 # If you are passionate about using data to drive business decisions and are excited about the opportunity to work with a dynamic and innovative team, we encourage you to apply for this role."""
     
     response = jsonify({"response": jd_text})
-    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Origin', 'http://127.0.0.1:105')
     print(response)
     return response
 
@@ -81,9 +84,9 @@ def eval_candidate():
         return cached_val
 
     pdf_dict = {
-        'Ajay Solanky': './ajay_resume.pdf',
-        'Aalhad Patankar': './aal_resume.pdf',
-        'Yamini Bhandari': './yb_resume.pdf'
+        'Ajay Solanky': './cadet-react/public/resources/ajay_resume.pdf',
+        'Aalhad Patankar': './cadet-react/public/resources/aal_resume.pdf',
+        'Yamini Bhandari': './cadet-react/public/resources/yb_resume.pdf'
     }
     pdf_path = pdf_dict[data['name']]
     resume_doc = fitz.open(pdf_path)

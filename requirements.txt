@@ -1,2 +1,6 @@
 langchain
 pymupdf
+flask_cors
+openai
+faiss-cpu
+nltk

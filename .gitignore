@@ -4,3 +4,5 @@ __pycache__/
 test_script.py
 cadet-react/package-lock.json
 disk_cache_dir/
+.venv/
+lib/

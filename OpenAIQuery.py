@@ -1,7 +1,7 @@
 import openai
 import os
 
-openai.api_key = os.getenv('OAI_TK', 'not the token')
+openai.api_key = os.getenv('OPENAI_API_KEY', 'not the token')
 
 # TODO: try adding a system role as a tech recruiter
 class OpenAIQuery:
