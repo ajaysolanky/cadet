@@ -103,7 +103,7 @@ const EvaluateCandidates = () => {
                             <div>
                                 <strong> {candidate.name} </strong>
                                 <p>{candidate.email}</p>
-                                <button onClick={() => handleResumeShowButtonClick(idx)}>Show Resume</button>
+                                {/* <button onClick={() => handleResumeShowButtonClick(idx)}>Show Resume</button> */}
                             </div>
                         </li>
                     )

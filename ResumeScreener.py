@@ -67,6 +67,7 @@ class ResumeScreener:
             resume_text += page.get_text()
 
         if str(resume_doc) == "Document('./resume_data/ajay_resume.pdf')":
+            print(str(resume_doc), 'case A')
             # text_splitter = NLTKTextSplitter(
             #     chunk_size=self.CHUNK_SIZE,
             #     chunk_overlap=self.CHUNK_OVERLAP
@@ -74,11 +75,13 @@ class ResumeScreener:
             with open('./resume_data/ajay_resume_extracted.json') as f:
                 texts_and_sources = json.load(f)
             texts, metadatas = list(zip(*texts_and_sources.items()))
-        if str(resume_doc) == "Document('./resume_data/yb_resume.pdf')":
+        elif str(resume_doc) == "Document('./resume_data/yb_resume.pdf')":
+            print(str(resume_doc), 'case B')
             with open('./resume_data/yb_resume_extracted.json') as f:
                 texts_and_sources = json.load(f)
             texts, metadatas = list(zip(*texts_and_sources.items()))
         else:
+            print(str(resume_doc), 'case C')
             #TODO: this doesn't really work because it gets rid of some key text, making it impossible to match
             text_splitter = CustomNLTKTextSplitter(
                 chunk_size=self.CHUNK_SIZE,

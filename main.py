@@ -67,6 +67,7 @@ def get_jd():
 
 @app.route('/evalcandidate', methods=['GET'])
 def eval_candidate():
+    # import pdb; pdb.set_trace()
     data = request.args
     keys = ['name', 'quals']
     try:
