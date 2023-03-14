@@ -28,11 +28,63 @@
   color: #61dafb;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.sidebar {
+  width: 25vw;
+  box-shadow: 3px 3px 2px grey;
+  transition:  all 0.2s ease-in-out;
+  background-color: #cacaca;
+}
+
+.spacer {
+  flex-grow: 1;
+}
+.highlightContainer {
+  height: 100vw;
+  width: 45vw;
+  position: relative;
+  justify-content: end;
+}
+
+.sidebar.one {
+  z-index: 2;
+}
+
+.sidebar.two {
+  z-index: 1;
+  
+}
+
+.sidebar.show {
+  transition:  all 0.2s ease-in-out;
+  /* padding-left: px; */
+  text-align: center;
+}
+
+.sidebar.hide{
+  text-align: center;
+  height: 0;
+  overflow: hidden;
+  transition: all 0.2s ease-in-out;
+}
+
+.customList {
+  display: block;
+  padding-inline-start: 0px;
+  margin-block-start:1em;
+  margin-block-end:1em;
+  list-style-type: none;
+}
+
+.customListItem {
+  padding: 1rem;
+  cursor: pointer;
+  transition: background .14s ease-in;
+  border-bottom: 1px solid rgb(119,119,119);
+}
+
+.customListItem.selected {
+  background-color:#ededed;
+}
+.customListItem.unselected {
+  background-color:#cacaca; 
 }

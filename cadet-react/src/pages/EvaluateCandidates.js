@@ -14,41 +14,52 @@ import {
   } from "react-pdf-highlighter";
 
 import { element } from "prop-types";
+import SlidingPanel from 'react-sliding-side-panel';
 
 const EvaluateCandidates = () => {
     const quals = useSelector((state) => state.job.quals);
 
     const [pdfUrl, setPdfUrl] = useState();
 
-    const [analysisData, setAnalysisData] = useState()
-
-    useEffect(() => {
-        if (analysisData) {
-            var newTableData = []
-            analysisData.forEach((val, idx) => {
-                var evaledQuals = ""
-                quals.split(",").forEach((el, idx) => {
-                    evaledQuals += `*${el}: ${val["overview_analysis"][el.toLowerCase()]}`
-                })
-                newTableData.push({
-                    "evaledQuals": evaledQuals,
-                    "highlights": val["highlights"],
-                    ...tableData[idx]
-                })
-            })
-            setTableData(newTableData)
-        }
-    }, [analysisData])
-
+    const [showResumeOverview, setShowResumeOverview] = useState(false)
+    const [hoveredCandidateIndex, setHoveredCandidateIndex] = useState(-1)
+    const [hoveredSkillIndex, setHoveredSkillIndex] = useState(-1)
+    // TODO: This should probably be an optional or an enum to make this async loadable
     const [tableData, setTableData] = useState([
         {"name": "Ajay Solanky", "email": "ajsolanky@gmail.com", "resume": "https://cadet-resumes.s3.amazonaws.com/ajay_resume.pdf"},
         {"name": "Aalhad Patankar", "email": "aalhad.patankar@gmail.com", "resume": "https://cadet-resumes.s3.amazonaws.com/aal_resume.pdf"},
         {"name": "Yamini Bhandari", "email": "yamini.bhandari@gmail.com", "resume": "https://cadet-resumes.s3.amazonaws.com/yb_resume.pdf"}
     ])
 
+    const updateAnalysisData = (analysisData) => {
+        console.log("Received overivew analysis", analysisData)
+        var newTableData = []
+        analysisData.forEach((val, idx) => {
+            var evaledQuals = []
+            quals.split(",").forEach((el, idx) => {
+                evaledQuals.push({
+                    "qual": el,
+                    "overview_analysis": val["overview_analysis"][el.toLowerCase()]
+                })
+            })
+            newTableData.push({
+                "evaledQuals": evaledQuals,
+                "highlights": val["highlights"],
+                ...tableData[idx]
+            })
+        })
+        setShowResumeOverview(true)
+        setTableData(newTableData)
+    }
+
+    const handleSelectedSkill = (skill) => {
+        console.log("Here baby doll")
+        setSelectedSkill(skill)
+    }
     const handleResumeShowButtonClick = (idx) => {
         const candidate = tableData[idx]
-        setSelectedCandidate(candidate.name);
+        handleResumeReviewButtonClick()
+        setSelectedCandidateIndex(idx);
         setPdfUrl(candidate.resume);
     }
 
@@ -63,27 +74,32 @@ const EvaluateCandidates = () => {
                 })
                     .then(response => response.json())
                     .then(data => data["response"])
+                    // .catch(err => console.log(err))
             )
         })
-        Promise.all(analysisPromises).then(analysisData => setAnalysisData(analysisData))
+        Promise.all(analysisPromises).then(analysisData => updateAnalysisData(analysisData))
     }
 
-    const [selectedCandidate, setSelectedCandidate] = useState()
+    const [selectedCandidateIndex, setSelectedCandidateIndex] = useState(0)
     const [selectedSkill, setSelectedSkill] = useState()
-    const skillHighlights = tableData.find(candidate => candidate.name == selectedCandidate)?.highlights?.[selectedSkill]
+    // TODO: We should not be doing equalities based on name, candidate needs an id field
+    const skillHighlights = tableData.find(candidate => candidate.name == tableData[selectedCandidateIndex].name)?.highlights?.[selectedSkill]
 
     console.log('printing')
     console.log(tableData)
     console.log(selectedSkill)
-    console.log(tableData.find(candidate => candidate.name == selectedCandidate)?.highlights)
+    console.log(tableData.find(candidate => candidate.name == tableData[selectedCandidateIndex])?.highlights)
     console.log(skillHighlights)
+    console.log(selectedCandidateIndex)
 
     const renderCandidateList = (tableData) => {
         return (
-            <ul style={{display: "block", paddingInlineStart: "40px", marginBlockStart:"1em", marginBlockEnd:"1em", listStyleType: "none"}}>
+            <div className="sidebar one" textAlign="center">
+            <h1 textAlign="center">Candidates</h1>
+            <ul className="customList" onMouseLeave={() => setHoveredCandidateIndex(-1)}>
                 {tableData.map((candidate, idx) => {
                     return (
-                        <li key={idx} style={{padding: "1rem", cursor: "pointer", transition: "background .14s ease-in", borderBottom: "1px solid rgb(119,119,119)"}}>
+                        <li key={idx} className={hoveredCandidateIndex == idx ? "customListItem selected" : "customListItem unselected"} onClick={()=> handleResumeShowButtonClick(idx)} onMouseOver={() => setHoveredCandidateIndex(idx)}>
                             <div>
                                 <strong> {candidate.name} </strong>
                                 <p>{candidate.email}</p>
@@ -93,11 +109,28 @@ const EvaluateCandidates = () => {
                     )
                 })}
             </ul>
+            </div>
         )
     }
 
-    const renderCandidateHighlights = (candidate) = {
-
+    const renderCandidateHighlights = (candidate) => {
+        console.log("selected candidate analysis: ", candidate)
+            return (
+                <div className="sidebar two show">
+                    <h1>Highlights</h1>
+                            <ul className="customList" onMouseLeave={() => setHoveredSkillIndex(-1)}>
+                                {candidate.evaledQuals.map((el, idx) => {
+                                    return (
+                                        <li key={idx} className={hoveredSkillIndex == idx ? "customListItem selected": "customListItem unselected"} onClick={()=> handleSelectedSkill(el.qual)} onMouseOver={() => setHoveredSkillIndex(idx)}>
+                                            <div>
+                                                <strong> {el.qual} </strong>
+                                                <p> {el.overview_analysis} </p>
+                                            </div>
+                                        </li>)
+                                    })}
+                            </ul>
+                </div>
+            )
     }
     
     const renderOldCandidateList = (tableData) => {
@@ -133,7 +166,7 @@ const EvaluateCandidates = () => {
                                 <td>{val.email}</td>
                                 <td><button onClick={()=>{handleResumeShowButtonClick(idx)}}>show</button></td>
                                 {/* <td>{val.evaledQuals}</td> */}
-                                <td><ul>{(val.evaledQuals || '').split("*").slice(1).map((el) => {
+                                <td><ul>{val.evaledQuals.map((el) => {
                                     return (<li>{el}</li>)
                                 })}</ul></td>
                             </tr>
@@ -227,12 +260,12 @@ const EvaluateCandidates = () => {
 
     return (
       <>
-      <div style={{display: "flex", height: "100vh"}}>
-      <div style={{width: "50vw", background: "linear-gradient(rgb(249,248,247),rgb(251,250,248) 46px,rgb(251,251,249) 120px,rgb(248,247,245) 35%,rgb(249,248,246))"}}>
-            {renderCandidateList(tableData)}
-        </div>
-        {pdfUrl && quals.split(",").map((el, idx) => (<button onClick={() => setSelectedSkill(el)} key={idx}>{el}</button>))}
-        <div className="Highlight_container" style={{height: "100vh", width: "50vw", position: "relative"}}>
+      <div style={{display: "flex", height: "100vw"}}>
+        {renderCandidateList(tableData)}
+        {showResumeOverview && renderCandidateHighlights(tableData[selectedCandidateIndex])}
+        {/* {pdfUrl && quals.split(",").map((el, idx) => (<button onClick={() => setSelectedSkill(el)} key={idx}>{el}</button>))} */}
+        <div className="spacer"></div>
+        <div className="highlightContainer">
             <div>
             {renderPDFHighlighter(pdfUrl, skillHighlights)}
             </div>
