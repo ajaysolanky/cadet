@@ -5,11 +5,11 @@ openai.api_key = os.getenv('OPENAI_API_KEY', 'not the token')
 
 # TODO: try adding a system role as a tech recruiter
 class OpenAIQuery:
-    def make_query_chat_gpt(self, prompt, system_role=None):
+    def make_query_chat_gpt(self, prompt, temperature=0.0, system_role=None):
         max_response_tokens = 1000
         chat_model = "gpt-3.5-turbo"
         chat_api_params = {
-            "temperature": 0.0,
+            "temperature": temperature,
             "max_tokens": max_response_tokens,
             "model": chat_model
         }

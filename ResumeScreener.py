@@ -66,12 +66,16 @@ class ResumeScreener:
         for page in resume_doc:
             resume_text += page.get_text()
 
-        if str(resume_doc) == "Document('./ajay_resume.pdf')":
+        if str(resume_doc) == "Document('./resume_data/ajay_resume.pdf')":
             # text_splitter = NLTKTextSplitter(
             #     chunk_size=self.CHUNK_SIZE,
             #     chunk_overlap=self.CHUNK_OVERLAP
             #     )
-            with open('./ajay_resume_extracted.json') as f:
+            with open('./resume_data/ajay_resume_extracted.json') as f:
+                texts_and_sources = json.load(f)
+            texts, metadatas = list(zip(*texts_and_sources.items()))
+        if str(resume_doc) == "Document('./resume_data/yb_resume.pdf')":
+            with open('./resume_data/yb_resume_extracted.json') as f:
                 texts_and_sources = json.load(f)
             texts, metadatas = list(zip(*texts_and_sources.items()))
         else:
