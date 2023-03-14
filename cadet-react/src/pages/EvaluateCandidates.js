@@ -26,8 +26,12 @@ const EvaluateCandidates = () => {
         if (analysisData) {
             var newTableData = []
             analysisData.forEach((val, idx) => {
+                var evaledQuals = ""
+                quals.split(",").forEach((el, idx) => {
+                    evaledQuals += `*${el}: ${val["overview_analysis"][el.toLowerCase()]}`
+                })
                 newTableData.push({
-                    "evaledQuals": val["overview_analysis"],
+                    "evaledQuals": evaledQuals,
                     "highlights": val["highlights"],
                     ...tableData[idx]
                 })
@@ -59,15 +63,10 @@ const EvaluateCandidates = () => {
                 })
                     .then(response => response.json())
                     .then(data => data["response"])
-                    // .then(data => ({"evaledQuals": data["response"], ...element}))
             )
         })
         Promise.all(analysisPromises).then(analysisData => setAnalysisData(analysisData))
     }
-
-    // const highlights = testHighlights["https://arxiv.org/pdf/1708.08021.pdf"];
-
-    // console.log(highlights)
 
     const [selectedCandidate, setSelectedCandidate] = useState()
     const [selectedSkill, setSelectedSkill] = useState()
