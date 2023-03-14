@@ -81,9 +81,9 @@ def eval_candidate():
         return cached_val
 
     pdf_dict = {
-        'Ajay Solanky': './ajay_resume.pdf',
-        'Aalhad Patankar': './aal_resume.pdf',
-        'Yamini Bhandari': './yb_resume.pdf'
+        'Ajay Solanky': './resume_data/ajay_resume.pdf',
+        'Aalhad Patankar': './resume_data/aal_resume.pdf',
+        'Yamini Bhandari': './resume_data/yb_resume.pdf'
     }
     pdf_path = pdf_dict[data['name']]
     resume_doc = fitz.open(pdf_path)
@@ -116,10 +116,10 @@ def outreach_email_handler():
 
     cdl = data['candidate_details'].split(",")
     candidate_details_dict = {}
-    i = 0
-    while i < len(cdl):
-        candidate_details_dict[cdl[i]] = cdl[i+1]
-        i += 2
+    # i = 0
+    # while i < len(cdl):
+    #     candidate_details_dict[cdl[i]] = cdl[i+1]
+    #     i += 2
 
     jdl = data['job_details'].split(",")
     job_details_dict = {}

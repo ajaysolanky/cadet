@@ -2,28 +2,26 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import TextareaAutosize from 'react-textarea-autosize';
 import { useSelector, useDispatch } from 'react-redux'
-import { setQuals, resetQuals } from '../jobSlice'
+import Collapsible from 'react-collapsible';
 
 const RequestInterview = () => {
-//   const quals = useSelector((state) => state.job.quals);
-  const candidateName = "Yamini Bhandari";
-
   const companyName = useSelector((state) => state.job.companyName);
   const companyDescription = useSelector((state) => state.job.companyDescription);
   const teamName = useSelector((state) => state.job.teamName);
   const teamDescription = useSelector((state) => state.job.teamDescription);
   const jobTitle = useSelector((state) => state.job.jobTitle);
-  
-  const [interestStatement, setInterestStatement] = useState("")
 
-  const dispatch = useDispatch();
+  const candidateData = [
+    {"candidate name":"Ajay Solanky", "relevant company": "SmartNews"},
+    {"candidate name":"Yamini Bhandari", "relevant company": "Harvard Business School"}
+  ]
 
   const [emailBody, setEmailBody] = useState("");
 
   const onSubmitGenerate = () => {
     // var data = new FormData();
     var payload = {
-        "candidate_details": ['candidate name', candidateName, 'reason for outreach', interestStatement],
+        "candidate_details": [],
         "job_details": [
             'company name', companyName,
             'company description', companyDescription,
@@ -52,16 +50,8 @@ const RequestInterview = () => {
   }
 
   return (
-    <>
-      <h1>Let's reach out to: {candidateName}</h1>
-      <form>
-        <label>brief description of what piqued your interest:</label>
-        <input
-            type="text"
-            value={interestStatement}
-            onChange={(e) => setInterestStatement(e.target.value)}
-          />
-      </form>
+    <div>
+      <h1>Let's reach out to our selected candidates:</h1>
       <button onClick={onSubmitGenerate}>Generate Outreach Email:</button><br /><br />
       <TextareaAutosize
         name="body"
@@ -69,8 +59,17 @@ const RequestInterview = () => {
         value={emailBody}
         style={{'width': 800}}
         /><br /><br />
+      {candidateData.map((el, idx) => (
+        <Collapsible trigger={el['candidate name']} triggerStyle={{"background": "pink", "width": "100vh"}}>
+            <ul>
+                <li><b>candidate name:</b> {el['candidate name']}</li>
+                <li><b>relevant company:</b> {el['relevant company']}</li>
+            </ul>
+            <p>{emailBody.replace('[candidate name]', el['candidate name']).replace('[relevant company]', el['relevant company']).replace('[recruiter name]','Chuck E. Cheese')}</p>
+        </Collapsible>
+      ))}
       <Link to="/candidateresponse"><button>Send Email</button></Link>
-    </>
+    </div>
   );
 };
 
