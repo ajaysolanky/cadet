@@ -1,6 +1,5 @@
 .DS_Store
 __pycache__/
-*.pdf
 test_script.py
 cadet-react/package-lock.json
 disk_cache_dir/
