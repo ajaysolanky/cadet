@@ -134,11 +134,7 @@ const EvaluateCandidates = () => {
     const renderCandidateHighlights2 = (candidate) => {
         const onHighlightSelected = (highlight) => {
             // const highlightIndex = selectfindIndex(highlight => highlight == highlight)
-            const highlightIndex = candidate.evaledQuals.findIndex(el => el.qual == highlight.qual)
-            console.log("selected highlight index: ", highlightIndex)
-            if (highlightIndex >= 0) {
-                handleSelectedSkill(highlightIndex)
-            }
+            handleSelectedSkill(highlight.qual)
         }
         return (
             <div className="sidebar two" textAlign="center">
