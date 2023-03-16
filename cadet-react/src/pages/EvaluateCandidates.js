@@ -4,6 +4,7 @@ import Collapsible from 'react-collapsible';
 import { useSelector, useDispatch } from 'react-redux';
 import React from 'react';
 import { render } from 'react-dom';
+import '../../node_modules/uikit/dist/css/uikit.css'
 import {
     PdfLoader,
     PdfHighlighter,
@@ -15,6 +16,7 @@ import {
 
 import { element } from "prop-types";
 import SlidingPanel from 'react-sliding-side-panel';
+import CandidateTable from "./CandidateTable";
 
 const EvaluateCandidates = () => {
     const quals = useSelector((state) => state.job.quals);
@@ -26,9 +28,9 @@ const EvaluateCandidates = () => {
     const [hoveredSkillIndex, setHoveredSkillIndex] = useState(-1)
     // TODO: This should probably be an optional or an enum to make this async loadable
     const [tableData, setTableData] = useState([
-        {"name": "Ajay Solanky", "email": "ajsolanky@gmail.com", "resume": "https://cadet-resumes.s3.amazonaws.com/ajay_resume.pdf"},
-        {"name": "Aalhad Patankar", "email": "aalhad.patankar@gmail.com", "resume": "https://cadet-resumes.s3.amazonaws.com/aal_resume.pdf"},
-        {"name": "Yamini Bhandari", "email": "yamini.bhandari@gmail.com", "resume": "https://cadet-resumes.s3.amazonaws.com/yb_resume.pdf"}
+        {"name": "Ajay Solanky", "email": "ajsolanky@gmail.com", "resume": "https://cadet-resumes.s3.amazonaws.com/ajay_resume.pdf", "city": "New York", "thumbnail": "https://upload.wikimedia.org/wikipedia/commons/3/3a/Cat03.jpg"},
+        {"name": "Aalhad Patankar", "email": "aalhad.patankar@gmail.com", "resume": "https://cadet-resumes.s3.amazonaws.com/aal_resume.pdf", "city": "New York", "thumbnail": "https://upload.wikimedia.org/wikipedia/commons/3/3a/Cat03.jpg"},
+        {"name": "Yamini Bhandari", "email": "yamini.bhandari@gmail.com", "resume": "https://cadet-resumes.s3.amazonaws.com/yb_resume.pdf", "city": "New York", "thumbnail": "https://upload.wikimedia.org/wikipedia/commons/3/3a/Cat03.jpg"}
     ])
 
     const updateAnalysisData = (analysisData) => {
@@ -92,6 +94,19 @@ const EvaluateCandidates = () => {
     console.log(skillHighlights)
     console.log(selectedCandidateIndex)
 
+    const renderCandidateList2 = (tableData) => {
+        const onUserSelected = (user) => {
+            const candidateIndex = tableData.findIndex(candidate => candidate.name == user.name)
+            if (candidateIndex) {
+                handleResumeShowButtonClick(candidateIndex)
+            }
+        }
+        return (
+            <div className="sidebar one" textAlign="center">
+                <CandidateTable users={tableData} onUserSelected={(user) => {onUserSelected(user)}}> </CandidateTable>
+            </div>
+        )
+    }
     const renderCandidateList = (tableData) => {
         return (
             <div className="sidebar one" textAlign="center">
@@ -103,7 +118,8 @@ const EvaluateCandidates = () => {
                             <div>
                                 <strong> {candidate.name} </strong>
                                 <p>{candidate.email}</p>
-                                {/* <button onClick={() => handleResumeShowButtonClick(idx)}>Show Resume</button> */}
+                                <Link to="/requestinterview"><button>Outreach</button></Link>
+                                {/* <button onClick={() => handleResumeShowButtonClick(idx)}> Outreach </button> */}
                             </div>
                         </li>
                     )
@@ -261,7 +277,7 @@ const EvaluateCandidates = () => {
     return (
       <>
       <div style={{display: "flex", height: "100vw"}}>
-        {renderCandidateList(tableData)}
+        {renderCandidateList2(tableData)}
         {showResumeOverview && renderCandidateHighlights(tableData[selectedCandidateIndex])}
         {/* {pdfUrl && quals.split(",").map((el, idx) => (<button onClick={() => setSelectedSkill(el)} key={idx}>{el}</button>))} */}
         <div className="spacer"></div>

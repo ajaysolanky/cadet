@@ -61,7 +61,7 @@ def get_jd():
 # If you are passionate about using data to drive business decisions and are excited about the opportunity to work with a dynamic and innovative team, we encourage you to apply for this role."""
     
     response = jsonify({"response": jd_text})
-    response.headers.add('Access-Control-Allow-Origin', 'http://127.0.0.1:105')
+    response.headers.add('Access-Control-Allow-Origin', '*')
     print(response)
     return response
 
@@ -132,7 +132,7 @@ def outreach_email_handler():
         job_details_dict[jdl[i]] = jdl[i+1]
         i += 2
 
-    outreach_email = outreach_emailer.get_email_text(candidate_details_dict, job_details_dict)
+    outreach_email = outreach_emailer.get_email_text(job_details_dict)
 
     print(outreach_email)
 

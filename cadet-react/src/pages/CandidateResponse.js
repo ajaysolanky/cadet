@@ -47,7 +47,7 @@ const CandidateResponse = () => {
       // mode: "no-cors",
       headers: {'Content-Type': 'application/json'},
     }
-    var url = 'http://192.168.1.240:105/responseemail?'
+    var url = 'http://127.0.0.1:105/responseemail?'
     for (const [key, value] of Object.entries(payload)) {
       url += `${key}=${encodeURIComponent(value)}&`;
     }
