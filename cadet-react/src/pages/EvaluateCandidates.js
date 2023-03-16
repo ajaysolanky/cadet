@@ -14,9 +14,10 @@ import {
     AreaHighlight,
   } from "react-pdf-highlighter";
 
-import { element } from "prop-types";
-import SlidingPanel from 'react-sliding-side-panel';
+// import { element } from "prop-types";
+// import SlidingPanel from 'react-sliding-side-panel';
 import CandidateTable from "./CandidateTable";
+import CandidateHighlightsTable from "./CandidateHighlightsTable";
 
 const EvaluateCandidates = () => {
     const quals = useSelector((state) => state.job.quals);
@@ -28,9 +29,9 @@ const EvaluateCandidates = () => {
     const [hoveredSkillIndex, setHoveredSkillIndex] = useState(-1)
     // TODO: This should probably be an optional or an enum to make this async loadable
     const [tableData, setTableData] = useState([
-        {"name": "Ajay Solanky", "email": "ajsolanky@gmail.com", "resume": "https://cadet-resumes.s3.amazonaws.com/ajay_resume.pdf", "city": "New York", "thumbnail": "https://upload.wikimedia.org/wikipedia/commons/3/3a/Cat03.jpg"},
-        {"name": "Aalhad Patankar", "email": "aalhad.patankar@gmail.com", "resume": "https://cadet-resumes.s3.amazonaws.com/aal_resume.pdf", "city": "New York", "thumbnail": "https://upload.wikimedia.org/wikipedia/commons/3/3a/Cat03.jpg"},
-        {"name": "Yamini Bhandari", "email": "yamini.bhandari@gmail.com", "resume": "https://cadet-resumes.s3.amazonaws.com/yb_resume.pdf", "city": "New York", "thumbnail": "https://upload.wikimedia.org/wikipedia/commons/3/3a/Cat03.jpg"}
+        {"id": "1", "name": "Ajay Solanky", "email": "ajsolanky@gmail.com", "resume": "https://cadet-resumes.s3.amazonaws.com/ajay_resume.pdf", "city": "New York", "thumbnail": "https://upload.wikimedia.org/wikipedia/commons/3/3a/Cat03.jpg"},
+        {"id": "2", "name": "Aalhad Patankar", "email": "aalhad.patankar@gmail.com", "resume": "https://cadet-resumes.s3.amazonaws.com/aal_resume.pdf", "city": "New York", "thumbnail": "https://upload.wikimedia.org/wikipedia/commons/3/3a/Cat03.jpg"},
+        {"id": "3", "name": "Yamini Bhandari", "email": "yamini.bhandari@gmail.com", "resume": "https://cadet-resumes.s3.amazonaws.com/yb_resume.pdf", "city": "Boston", "thumbnail": "https://upload.wikimedia.org/wikipedia/commons/3/3a/Cat03.jpg"}
     ])
 
     const updateAnalysisData = (analysisData) => {
@@ -85,19 +86,21 @@ const EvaluateCandidates = () => {
     const [selectedCandidateIndex, setSelectedCandidateIndex] = useState(0)
     const [selectedSkill, setSelectedSkill] = useState()
     // TODO: We should not be doing equalities based on name, candidate needs an id field
-    const skillHighlights = tableData.find(candidate => candidate.name == tableData[selectedCandidateIndex].name)?.highlights?.[selectedSkill]
+    const skillHighlights = tableData.find(candidate => candidate.id == tableData[selectedCandidateIndex].id)?.highlights?.[selectedSkill]
 
     console.log('printing')
     console.log(tableData)
     console.log(selectedSkill)
-    console.log(tableData.find(candidate => candidate.name == tableData[selectedCandidateIndex])?.highlights)
+    // console.log(tableData.find(candidate => candidate.name == tableData[selectedCandidateIndex])?.highlights)
     console.log(skillHighlights)
     console.log(selectedCandidateIndex)
 
     const renderCandidateList2 = (tableData) => {
         const onUserSelected = (user) => {
-            const candidateIndex = tableData.findIndex(candidate => candidate.name == user.name)
-            if (candidateIndex) {
+            console.log("user selected", user)
+            const candidateIndex = tableData.findIndex(candidate => candidate.id === user.id)
+            if (candidateIndex >= 0) {
+                console.log("candidate index", candidateIndex)
                 handleResumeShowButtonClick(candidateIndex)
             }
         }
@@ -125,6 +128,18 @@ const EvaluateCandidates = () => {
                     )
                 })}
             </ul>
+            </div>
+        )
+    }
+
+    const renderCandidateHighlights2 = (candidate) => {
+        const onHighlightSelected = (highlight) => {
+            // const highlightIndex = selectfindIndex(highlight => highlight == highlight)
+            console.log("selected highlight: ", highlight)
+        }
+        return (
+            <div className="sidebar two" textAlign="center">
+                <CandidateHighlightsTable highlights={candidate.evaledQuals} onHighlightSelected={(highlight) => {onHighlightSelected(highlight)}}> </CandidateHighlightsTable>
             </div>
         )
     }
@@ -276,9 +291,9 @@ const EvaluateCandidates = () => {
 
     return (
       <>
-      <div style={{display: "flex", height: "100vw"}}>
+      <div style={{display: "flex", height: "100vh"}}>
         {renderCandidateList2(tableData)}
-        {showResumeOverview && renderCandidateHighlights(tableData[selectedCandidateIndex])}
+        {showResumeOverview && renderCandidateHighlights2(tableData[selectedCandidateIndex])}
         {/* {pdfUrl && quals.split(",").map((el, idx) => (<button onClick={() => setSelectedSkill(el)} key={idx}>{el}</button>))} */}
         <div className="spacer"></div>
         <div className="highlightContainer">
