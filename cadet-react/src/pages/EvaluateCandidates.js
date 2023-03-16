@@ -85,14 +85,13 @@ const EvaluateCandidates = () => {
 
     const [selectedCandidateIndex, setSelectedCandidateIndex] = useState(0)
     const [selectedSkill, setSelectedSkill] = useState()
-    // TODO: We should not be doing equalities based on name, candidate needs an id field
     const skillHighlights = tableData.find(candidate => candidate.id == tableData[selectedCandidateIndex].id)?.highlights?.[selectedSkill]
 
     console.log('printing')
     console.log(tableData)
     console.log(selectedSkill)
     // console.log(tableData.find(candidate => candidate.name == tableData[selectedCandidateIndex])?.highlights)
-    console.log(skillHighlights)
+    console.log("skill highlights", skillHighlights)
     console.log(selectedCandidateIndex)
 
     const renderCandidateList2 = (tableData) => {
@@ -135,7 +134,11 @@ const EvaluateCandidates = () => {
     const renderCandidateHighlights2 = (candidate) => {
         const onHighlightSelected = (highlight) => {
             // const highlightIndex = selectfindIndex(highlight => highlight == highlight)
-            console.log("selected highlight: ", highlight)
+            const highlightIndex = candidate.evaledQuals.findIndex(el => el.qual == highlight.qual)
+            console.log("selected highlight index: ", highlightIndex)
+            if (highlightIndex >= 0) {
+                handleSelectedSkill(highlightIndex)
+            }
         }
         return (
             <div className="sidebar two" textAlign="center">
